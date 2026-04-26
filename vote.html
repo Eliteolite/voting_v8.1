@@ -1,40 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Vote - NTIC</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Vote - NTIC Elections</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="container">
-<h1>Cast Your Vote</h1>
+    <header>
+        <h1>NTIC - KANO</h1>
+        <p>Official SRC Election Portal</p>
+    </header>
 
-<div class="card">
-<h3>Head Boy</h3>
-<button onclick="selectOption('Head Boy','Candidate A')">Candidate A</button>
-<button onclick="selectOption('Head Boy','Candidate B')">Candidate B</button>
-</div>
+    <div class="card" id="votingCard"></div>
 
-<div class="card">
-<h3>Head Girl</h3>
-<button onclick="selectOption('Head Girl','Candidate X')">Candidate X</button>
-<button onclick="selectOption('Head Girl','Candidate Y')">Candidate Y</button>
-</div>
-
-<button onclick="goConfirm()">Review Ballot</button>
+    <footer>© 2026 NTIC-KANO SRC Elections</footer>
 </div>
 
 <script>
-let selections = {};
+// Define your candidates here
+const positions = {
+    "SRC Co-Leader": ["Kubura Mustapha", "Fatima Auwal Adam Sani", "Bilkisu Murtala"],
+    "SRC Assist. Co-Leader": ["Rihanna Ahmad Abdulwahab", "Zainab Ismail Mai-Adamu", "Cindy Fechi Ohuruzo"],
+    "Well-being Ambassador": ["Mufidah Nababa", "Ameerah Morenike Ibrahim", "Fatima Mai Hamza"],
+    "SRC Secretary": ["Bilkisu Dauda Suleiman", "Fatima Mamman Farafara", "Fatima Tsofo", "Amatullah Lawal", "Halima Abdulqadir"],
+    "Event Organizer": ["Yesmin Sadiq Bello", "Aisha Musta Ahmad", "Silakasi Nama Joshua", "Safiyta Bello Maiwada"],
+    "Sports Captain": ["Favour Enewo Jimoh"],
+    "Library Assistant": ["Zainab Mustapha", "Naila Sani", "Khadija Girgir", "Aisha Aliyu Musa"],
+    "Hostel Coordinator": ["Asma'u Bala Getso", "Amina Uzairu", "Ummu Salma Kabir Lawal"],
+    "Dining Hall Coordinator": ["TBD 1", "TBD 2"],
+    "School Ameerah": ["Aisha Bilyameen Gebe", "Amatur-Rahman Abdulqadir"],
+    "School Sister": ["TBD 1", "TBD 2"]
+};
 
-function selectOption(position, name) {
-selections[position] = name;
+const positionKeys = Object.keys(positions);
+let currentIndex = 0;
+let selections = JSON.parse(localStorage.getItem("selections") || "{}");
+
+// Logic to handle "Change" requests from confirm.html
+if (localStorage.getItem("jumpToPosition")) {
+    currentIndex = positionKeys.indexOf(localStorage.getItem("jumpToPosition"));
 }
 
-function goConfirm() {
-localStorage.setItem("selections", JSON.stringify(selections));
-window.location.href = "confirm.html";
+function renderPosition() {
+    const currentPos = positionKeys[currentIndex];
+    const isSingleEdit = localStorage.getItem("singleEditMode") === "true";
+    
+    let html = `<h2 style="text-align: left; margin-bottom: 20px;">${currentPos}</h2>`;
+
+    positions[currentPos].forEach(name => {
+        const isChecked = (selections[currentPos] === name) ? "checked" : "";
+        html += `
+        <label class="option">
+            <span style="font-size: 1.1rem; font-weight: 500;">${name}</span>
+            <input type="radio" name="candidate" value="${name}" ${isChecked}>
+        </label>`;
+    });
+
+    const btnText = isSingleEdit ? "Save & Return" : (currentIndex === positionKeys.length - 1 ? "Review Ballot" : "Continue");
+    html += `<button onclick="next()" style="margin-top: 20px;">${btnText}</button>`;
+    
+    document.getElementById("votingCard").innerHTML = html;
 }
+
+function next() {
+    const selected = document.querySelector('input[name="candidate"]:checked');
+    if (!selected) { alert("Please make a selection."); return; }
+    
+    selections[positionKeys[currentIndex]] = selected.value;
+    localStorage.setItem("selections", JSON.stringify(selections));
+
+    const isSingleEdit = localStorage.getItem("singleEditMode") === "true";
+
+    if (isSingleEdit) {
+        localStorage.removeItem("singleEditMode");
+        localStorage.removeItem("jumpToPosition");
+        window.location.href = "confirm.html"; 
+    } else {
+        currentIndex++;
+        if (currentIndex < positionKeys.length) {
+            renderPosition();
+        } else {
+            window.location.href = "confirm.html";
+        }
+    }
+}
+
+renderPosition();
 </script>
 </body>
 </html>
