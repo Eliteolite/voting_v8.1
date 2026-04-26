@@ -12,13 +12,25 @@
         <p>Official SRC Election Portal</p>
     </header>
 
-    <div class="card" id="votingCard"></div>
+    <div class="card">
+        <div class="progress-container">
+            <div class="progress-text">
+                <span id="pos-name">Position</span>
+                <span id="pos-count">Step 1 of 11</span>
+            </div>
+            <div class="progress-bar-bg"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
 
-    <footer>© 2026 NTIC-KANO SRC Elections</footer>
+        <div id="optionsContainer"></div>
+
+        <div class="nav-group">
+            <button class="btn-prev" id="prevBtn" onclick="prev()">Previous</button>
+            <button class="btn-next" id="nextBtn" onclick="next()">Continue</button>
+        </div>
+    </div>
 </div>
 
 <script>
-// Define your candidates here
 const positions = {
     "SRC Co-Leader": ["Kubura Mustapha", "Fatima Auwal Adam Sani", "Bilkisu Murtala"],
     "SRC Assist. Co-Leader": ["Rihanna Ahmad Abdulwahab", "Zainab Ismail Mai-Adamu", "Cindy Fechi Ohuruzo"],
@@ -33,60 +45,62 @@ const positions = {
     "School Sister": ["TBD 1", "TBD 2"]
 };
 
-const positionKeys = Object.keys(positions);
+const keys = Object.keys(positions);
 let currentIndex = 0;
 let selections = JSON.parse(localStorage.getItem("selections") || "{}");
 
-// Logic to handle "Change" requests from confirm.html
-if (localStorage.getItem("jumpToPosition")) {
-    currentIndex = positionKeys.indexOf(localStorage.getItem("jumpToPosition"));
-}
-
-function renderPosition() {
-    const currentPos = positionKeys[currentIndex];
-    const isSingleEdit = localStorage.getItem("singleEditMode") === "true";
+function updateUI() {
+    const currentPos = keys[currentIndex];
     
-    let html = `<h2 style="text-align: left; margin-bottom: 20px;">${currentPos}</h2>`;
+    // Update Progress
+    const percent = ((currentIndex + 1) / keys.length) * 100;
+    document.getElementById("progressFill").style.width = percent + "%";
+    document.getElementById("pos-name").innerText = currentPos;
+    document.getElementById("pos-count").innerText = `Step ${currentIndex + 1} of ${keys.length}`;
 
+    // Render Options
+    let html = "";
     positions[currentPos].forEach(name => {
         const isChecked = (selections[currentPos] === name) ? "checked" : "";
         html += `
         <label class="option">
-            <span style="font-size: 1.1rem; font-weight: 500;">${name}</span>
-            <input type="radio" name="candidate" value="${name}" ${isChecked}>
+            <span>${name}</span>
+            <input type="radio" name="candidate" value="${name}" ${isChecked} onchange="saveSelection(this)">
         </label>`;
     });
+    document.getElementById("optionsContainer").innerHTML = html;
 
-    const btnText = isSingleEdit ? "Save & Return" : (currentIndex === positionKeys.length - 1 ? "Review Ballot" : "Continue");
-    html += `<button onclick="next()" style="margin-top: 20px;">${btnText}</button>`;
-    
-    document.getElementById("votingCard").innerHTML = html;
+    // Button States
+    document.getElementById("prevBtn").disabled = (currentIndex === 0);
+    document.getElementById("nextBtn").innerText = (currentIndex === keys.length - 1) ? "Review Ballot" : "Continue";
+}
+
+function saveSelection(el) {
+    selections[keys[currentIndex]] = el.value;
+    localStorage.setItem("selections", JSON.stringify(selections));
 }
 
 function next() {
-    const selected = document.querySelector('input[name="candidate"]:checked');
-    if (!selected) { alert("Please make a selection."); return; }
-    
-    selections[positionKeys[currentIndex]] = selected.value;
-    localStorage.setItem("selections", JSON.stringify(selections));
-
-    const isSingleEdit = localStorage.getItem("singleEditMode") === "true";
-
-    if (isSingleEdit) {
-        localStorage.removeItem("singleEditMode");
-        localStorage.removeItem("jumpToPosition");
-        window.location.href = "confirm.html"; 
-    } else {
+    if (!selections[keys[currentIndex]]) {
+        alert("Please select a candidate before continuing.");
+        return;
+    }
+    if (currentIndex < keys.length - 1) {
         currentIndex++;
-        if (currentIndex < positionKeys.length) {
-            renderPosition();
-        } else {
-            window.location.href = "confirm.html";
-        }
+        updateUI();
+    } else {
+        window.location.href = "confirm.html";
     }
 }
 
-renderPosition();
+function prev() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        updateUI();
+    }
+}
+
+updateUI();
 </script>
 </body>
 </html>
