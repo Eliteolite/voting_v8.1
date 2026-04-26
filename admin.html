@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container">
+<h1>Election Leaderboard</h1>
+<button onclick="fetchResults()">Refresh</button>
+<div id="results"></div>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXOhIa6_b0Ux7-p0LPy7X12lyFIcwfaIF50_moD7mcKp2K-XFZx9ZXYRkueWDwwchu/exec";
+
+async function fetchResults() {
+const res = await fetch(`${SCRIPT_URL}?action=getResults`);
+const rows = await res.json();
+document.getElementById("results").innerText = JSON.stringify(rows,null,2);
+}
+
+fetchResults();
+</script>
+</body>
+</html>

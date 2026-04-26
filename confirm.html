@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Confirm Vote</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+<h1>Confirm Your Vote</h1>
+<div id="receipt"></div>
+<button onclick="submitVote()">Cast Final Vote</button>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXOhIa6_b0Ux7-p0LPy7X12lyFIcwfaIF50_moD7mcKp2K-XFZx9ZXYRkueWDwwchu/exec";
+const selections = JSON.parse(localStorage.getItem("selections") || "{}");
+
+document.getElementById("receipt").innerHTML =
+Object.entries(selections).map(([pos,val]) => `<p><strong>${pos}</strong>: ${val}</p>`).join("");
+
+async function submitVote() {
+await fetch(SCRIPT_URL, {
+method: "POST",
+mode: "no-cors",
+body: JSON.stringify({
+voter: localStorage.getItem("currentVoter"),
+selections: selections
+})
+});
+localStorage.removeItem("selections");
+window.location.href = "thankyou.html";
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login - NTIC Voting</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+<header>
+<h1>NTIC - KANO</h1>
+<p>Official SRC Election Portal</p>
+</header>
+
+<div class="card">
+<h2>Voter Authentication</h2>
+<input type="text" id="studentId" placeholder="Enter Admission Number" style="text-transform: uppercase;">
+<p id="error" class="error-msg"></p>
+<button id="loginBtn" onclick="startVoting()">Verify & Access Ballot</button>
+</div>
+
+<footer>
+<p>© 2026 NTIC-KANO. All rights reserved</p>
+</footer>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXOhIa6_b0Ux7-p0LPy7X12lyFIcwfaIF50_moD7mcKp2K-XFZx9ZXYRkueWDwwchu/exec";
+
+async function startVoting() {
+const id = document.getElementById("studentId").value.trim().toUpperCase();
+const errorDiv = document.getElementById("error");
+
+if(!id) {
+errorDiv.innerText = "ID is required.";
+return;
+}
+
+try {
+const res = await fetch(`${SCRIPT_URL}?id=${encodeURIComponent(id)}`);
+const result = await res.json();
+
+if(result.valid) {
+localStorage.setItem("currentVoter", id);
+window.location.href = "vote.html";
+} else {
+errorDiv.innerText = "ID not found.";
+}
+} catch(e) {
+errorDiv.innerText = "Connection error.";
+}
+}
+</script>
+</body>
+</html>

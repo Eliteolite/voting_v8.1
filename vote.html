@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vote - NTIC</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+<h1>Cast Your Vote</h1>
+
+<div class="card">
+<h3>Head Boy</h3>
+<button onclick="selectOption('Head Boy','Candidate A')">Candidate A</button>
+<button onclick="selectOption('Head Boy','Candidate B')">Candidate B</button>
+</div>
+
+<div class="card">
+<h3>Head Girl</h3>
+<button onclick="selectOption('Head Girl','Candidate X')">Candidate X</button>
+<button onclick="selectOption('Head Girl','Candidate Y')">Candidate Y</button>
+</div>
+
+<button onclick="goConfirm()">Review Ballot</button>
+</div>
+
+<script>
+let selections = {};
+
+function selectOption(position, name) {
+selections[position] = name;
+}
+
+function goConfirm() {
+localStorage.setItem("selections", JSON.stringify(selections));
+window.location.href = "confirm.html";
+}
+</script>
+</body>
+</html>
