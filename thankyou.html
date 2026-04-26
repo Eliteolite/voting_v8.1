@@ -2,53 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Thank You - NTIC</title>
+    <title>Success - NTIC</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body onload="launchConfetti()">
+<body onload="init()">
 <div class="container">
-    <div class="card" style="padding: 60px 20px;">
-        <h1 style="color: #34d399;">✔ Vote Received</h1>
-        <p style="margin: 20px 0; color: var(--text-muted);">Your ballot has been securely recorded in the cloud database.</p>
-        <button onclick="window.location.href='index.html'" style="width: auto; padding: 10px 30px;">Finish</button>
+    <div class="card" style="text-align: center; padding: 60px 20px;">
+        <h1 style="color: #34d399;">✔ Vote Recorded</h1>
+        <p style="margin: 20px 0; color: var(--text-muted);">Your ballot has been securely saved.</p>
+        <p style="font-size: 0.9rem;">Redirecting in <span id="timer" style="color: var(--primary); font-weight: bold;">10</span> seconds...</p>
+        <button onclick="window.location.href='index.html'" style="margin-top: 20px; width: auto; padding: 10px 30px; background: rgba(255,255,255,0.05);">Logout Now</button>
     </div>
 </div>
 
 <script>
-function launchConfetti() {
-    for(let i=0; i<80; i++) {
-        let div = document.createElement('div');
-        div.style.position = 'fixed';
-        div.style.width = Math.random() * 8 + 4 + 'px';
-        div.style.height = div.style.width;
-        div.style.background = 'hsl(' + Math.random() * 360 + ', 100%, 50%)';
-        div.style.top = '-20px';
-        div.style.left = Math.random() * 100 + '%';
-        div.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-        div.style.zIndex = '9999';
-        div.style.pointerEvents = 'none';
-        document.body.appendChild(div);
-
-        let speed = Math.random() * 4 + 3;
-        let sideWay = (Math.random() - 0.5) * 6;
-        let rotation = Math.random() * 360;
-
-        function fall() {
-            let top = parseFloat(div.style.top);
-            let left = parseFloat(div.style.left);
-            if (top < window.innerHeight) {
-                div.style.top = (top + speed) + 'px';
-                div.style.left = (left + sideWay) + 'px';
-                div.style.transform = `rotate(${rotation}deg)`;
-                rotation += 5;
-                requestAnimationFrame(fall);
-            } else {
-                div.remove();
-            }
+function init() {
+    launchConfetti(); // Your existing confetti logic
+    let seconds = 10;
+    const timerEl = document.getElementById("timer");
+    
+    const interval = setInterval(() => {
+        seconds--;
+        timerEl.innerText = seconds;
+        if (seconds <= 0) {
+            clearInterval(interval);
+            window.location.href = "index.html";
         }
-        requestAnimationFrame(fall);
-    }
+    }, 1000);
 }
+
+// ... Paste your launchConfetti() function here ...
 </script>
 </body>
 </html>
