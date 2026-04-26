@@ -1,36 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Confirm Vote</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Review Your Ballot - NTIC</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="container">
-<h1>Confirm Your Vote</h1>
-<div id="receipt"></div>
-<button onclick="submitVote()">Cast Final Vote</button>
+    <header><h1>Final Review</h1></header>
+    <div class="card">
+        <div id="receiptList"></div>
+        <button id="submitBtn" onclick="submitVote()" style="margin-top: 20px;">Cast My Final Vote</button>
+    </div>
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXOhIa6_b0Ux7-p0LPy7X12lyFIcwfaIF50_moD7mcKp2K-XFZx9ZXYRkueWDwwchu/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXOhIa6_b0Ux7-p0LPy7X12lyFIcwfaIF50_moD7mcKp2K-XFZx9ZXYRkueWDwwchu/exec"; // PASTE URL HERE
 const selections = JSON.parse(localStorage.getItem("selections") || "{}");
 
-document.getElementById("receipt").innerHTML =
-Object.entries(selections).map(([pos,val]) => `<p><strong>${pos}</strong>: ${val}</p>`).join("");
+function renderReceipt() {
+    let html = "";
+    for (const pos in selections) {
+        html += `<div class="option" style="cursor:default; justify-content: space-between;">
+            <div style="text-align:left;"><small>${pos}</small><br><strong>${selections[pos]}</strong></div>
+            <button onclick="goToEdit('${pos}')" style="width:auto; padding: 5px 10px; font-size: 0.7rem;">Change</button>
+        </div>`;
+    }
+    document.getElementById("receiptList").innerHTML = html;
+}
+
+function goToEdit(pos) {
+    localStorage.setItem("jumpToPosition", pos);
+    localStorage.setItem("singleEditMode", "true");
+    window.location.href = "vote.html";
+}
 
 async function submitVote() {
-await fetch(SCRIPT_URL, {
-method: "POST",
-mode: "no-cors",
-body: JSON.stringify({
-voter: localStorage.getItem("currentVoter"),
-selections: selections
-})
-});
-localStorage.removeItem("selections");
-window.location.href = "thankyou.html";
+    const btn = document.getElementById("submitBtn");
+    btn.innerText = "Uploading Vote...";
+    btn.disabled = true;
+
+    try {
+        await fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify({
+                voter: localStorage.getItem("currentVoter"),
+                selections: selections
+            })
+        });
+        localStorage.removeItem("selections");
+        window.location.href = "thankyou.html";
+    } catch (e) {
+        alert("Sync failed.");
+        btn.disabled = false;
+    }
 }
+renderReceipt();
 </script>
 </body>
 </html>
